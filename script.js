@@ -1,5 +1,4 @@
 document.addEventListener('DOMContentLoaded', function() {
-    // DOM elements - existing
     const taskForm = document.getElementById('task-form');
     const taskInput = document.getElementById('task-input');
     const taskCategory = document.getElementById('task-category');
@@ -16,30 +15,12 @@ document.addEventListener('DOMContentLoaded', function() {
     const tabs = document.querySelectorAll('.tab');
     const tabContents = document.querySelectorAll('.tab-content');
     
-    // Pomodoro DOM elements
-    const timerDisplay = document.getElementById('timer-time');
-    const timerProgress = document.getElementById('timer-progress');
-    const startBtn = document.getElementById('timer-start');
-    const pauseBtn = document.getElementById('timer-pause');
-    const resetBtn = document.getElementById('timer-reset');
-    const modeButtons = document.querySelectorAll('.timer-mode-btn');
-    const pomodoroDuration = document.getElementById('pomodoro-duration');
-    const shortBreakDuration = document.getElementById('short-break-duration');
-    const longBreakDuration = document.getElementById('long-break-duration');
-    const autoStartBreaks = document.getElementById('auto-start-breaks');
-    const autoStartPomodoros = document.getElementById('auto-start-pomodoros');
-    const saveSettingsBtn = document.getElementById('save-pomodoro-settings');
-    const pomodoroCount = document.getElementById('pomodoro-count');
-    const focusMinutes = document.getElementById('focus-minutes');
-    
-    // Statistics elements
     const totalTasksEl = document.getElementById('total-tasks');
     const completedTasksEl = document.getElementById('completed-tasks');
     const completionRateEl = document.getElementById('completion-rate');
     const dueSoonEl = document.getElementById('due-soon');
     const categoryStatsEl = document.getElementById('category-stats');
     
-    // Settings elements
     const enableNotifications = document.getElementById('enable-notifications');
     const requestNotificationBtn = document.getElementById('request-notification-permission');
     const exportDataBtn = document.getElementById('export-data');
@@ -47,39 +28,25 @@ document.addEventListener('DOMContentLoaded', function() {
     const importFileInput = document.getElementById('import-file');
     const clearDataBtn = document.getElementById('clear-data');
 
-    // New Pomodoro DOM elements
-    const settingsToggle = document.querySelector('.settings-toggle');
-    const settingsContent = document.querySelector('.settings-content');
-    const taskSelect = document.getElementById('task-select');
-    const currentTask = document.getElementById('current-task');
-
-    // Set default date to today
     const today = new Date();
     const formattedDate = today.toISOString().split('T')[0];
     taskDate.value = formattedDate;
 
-    // Load tasks from localStorage
     let tasks = JSON.parse(localStorage.getItem('tasks')) || [];
     
-    // Load settings from localStorage
     const settings = JSON.parse(localStorage.getItem('taskflow_settings')) || {
         theme: 'light',
         notifications: false
     };
     
-    // Apply saved theme
     document.documentElement.setAttribute('data-theme', settings.theme);
     updateThemeToggleIcon();
     
-    // Set notification checkbox state
     enableNotifications.checked = settings.notifications;
 
-    // Initial render
     renderTasks();
     updateStatistics();
-    updateTaskSelectOptions();
 
-    // Add new task
     taskForm.addEventListener('submit', function(e) {
         e.preventDefault();
         
@@ -89,7 +56,7 @@ document.addEventListener('DOMContentLoaded', function() {
             id: Date.now(),
             text: taskInput.value.trim(),
             category: taskCategory.value,
-            notes: taskNotesInput.value.trim(),
+            notes: taskNotesInput ? taskNotesInput.value.trim() : '',
             completed: false,
             priority: taskPriority.value,
             date: taskDate.value || formattedDate,
@@ -98,40 +65,35 @@ document.addEventListener('DOMContentLoaded', function() {
 
         tasks.push(newTask);
         saveTasks();
-        updateTaskRelatedElements();
+        renderTasks();
+        updateStatistics();
 
-        // Reset form
         taskInput.value = '';
         taskCategory.value = '';
-        taskNotesInput.value = '';
+        if (taskNotesInput) taskNotesInput.value = '';
         taskPriority.value = 'medium';
         taskDate.value = formattedDate;
     });
 
-    // Task list event delegation (for checkboxes, edit, delete buttons)
     taskList.addEventListener('click', function(e) {
         const taskItem = e.target.closest('.task-item');
         if (!taskItem) return;
 
         const taskId = parseInt(taskItem.dataset.id);
         
-        // Handle checkbox click
         if (e.target.classList.contains('task-checkbox')) {
             toggleTaskStatus(taskId);
         }
 
-        // Handle delete button click
         if (e.target.classList.contains('delete-btn') || e.target.closest('.delete-btn')) {
             deleteTask(taskId);
         }
 
-        // Handle edit button click
         if (e.target.classList.contains('edit-btn') || e.target.closest('.edit-btn')) {
             editTask(taskId);
         }
     });
 
-    // Filter tasks
     filterBtns.forEach(btn => {
         btn.addEventListener('click', function() {
             filterBtns.forEach(b => b.classList.remove('active'));
@@ -140,7 +102,6 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     });
 
-    // Category filters
     categoryFilters.forEach(filter => {
         filter.addEventListener('click', function() {
             categoryFilters.forEach(f => f.classList.remove('active'));
@@ -149,7 +110,6 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     });
 
-    // Search tasks
     searchBtn.addEventListener('click', function() {
         renderTasks();
     });
@@ -158,7 +118,6 @@ document.addEventListener('DOMContentLoaded', function() {
         renderTasks();
     });
 
-    // Toggle task completion status
     function toggleTaskStatus(id) {
         tasks = tasks.map(task => {
             if (task.id === id) {
@@ -167,23 +126,23 @@ document.addEventListener('DOMContentLoaded', function() {
             return task;
         });
         saveTasks();
-        updateTaskRelatedElements();
+        renderTasks();
+        updateStatistics();
     }
 
-    // Delete task
     function deleteTask(id) {
         tasks = tasks.filter(task => task.id !== id);
         saveTasks();
-        updateTaskRelatedElements();
+        renderTasks();
+        updateStatistics();
     }
 
-    // Edit task
     function editTask(id) {
         const task = tasks.find(task => task.id === id);
         if (!task) return;
 
         const newText = prompt('Edit task:', task.text);
-        if (newText === null) return; // User cancelled
+        if (newText === null) return;
         
         if (newText.trim() !== '') {
             tasks = tasks.map(t => {
@@ -193,22 +152,20 @@ document.addEventListener('DOMContentLoaded', function() {
                 return t;
             });
             saveTasks();
-            updateTaskRelatedElements();
+            renderTasks();
+            updateStatistics();
         }
     }
 
-    // Save tasks to localStorage
     function saveTasks() {
         localStorage.setItem('tasks', JSON.stringify(tasks));
     }
 
-    // Render tasks
     function renderTasks() {
         const activeFilter = document.querySelector('.filter-btn.active').dataset.filter;
         const activeCategory = document.querySelector('.category-filter.active').dataset.category;
         const searchTerm = searchInput.value.trim().toLowerCase();
 
-        // Filter tasks based on activeFilter, activeCategory, and searchTerm
         let filteredTasks = tasks;
 
         if (activeFilter === 'active') {
@@ -227,7 +184,6 @@ document.addEventListener('DOMContentLoaded', function() {
             );
         }
 
-        // Sort tasks: first by completion status, then by date, then by priority
         filteredTasks.sort((a, b) => {
             if (a.completed !== b.completed) return a.completed ? 1 : -1;
             if (a.date !== b.date) return new Date(a.date) - new Date(b.date);
@@ -236,7 +192,6 @@ document.addEventListener('DOMContentLoaded', function() {
             return priorityValues[a.priority] - priorityValues[b.priority];
         });
 
-        // Update UI
         if (filteredTasks.length === 0) {
             taskList.innerHTML = '';
             emptyState.style.display = 'block';
@@ -265,14 +220,12 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     }
 
-    // Format date to readable format
     function formatDate(dateString) {
         const date = new Date(dateString);
         const options = { month: 'short', day: 'numeric' };
         return date.toLocaleDateString('en-US', options);
     }
 
-    // Update statistics
     function updateStatistics() {
         const totalTasks = tasks.length;
         const completedTasks = tasks.filter(task => task.completed).length;
@@ -290,7 +243,6 @@ document.addEventListener('DOMContentLoaded', function() {
         completionRateEl.textContent = `${completionRate}%`;
         dueSoonEl.textContent = dueSoonTasks;
 
-        // Update category stats
         const categories = ['work', 'personal', 'shopping', 'health', 'education'];
         categoryStatsEl.innerHTML = categories.map(category => {
             const count = tasks.filter(task => task.category === category).length;
@@ -298,7 +250,6 @@ document.addEventListener('DOMContentLoaded', function() {
         }).join('');
     }
 
-    // Theme toggle
     themeToggle.addEventListener('click', function() {
         const currentTheme = document.documentElement.getAttribute('data-theme');
         const newTheme = currentTheme === 'light' ? 'dark' : 'light';
@@ -320,7 +271,6 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     }
 
-    // Tab navigation
     tabs.forEach(tab => {
         tab.addEventListener('click', function() {
             tabs.forEach(t => t.classList.remove('active'));
@@ -330,7 +280,6 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     });
 
-    // Notification settings
     enableNotifications.addEventListener('change', function() {
         settings.notifications = this.checked;
         localStorage.setItem('taskflow_settings', JSON.stringify(settings));
@@ -346,7 +295,6 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     });
 
-    // Data management
     exportDataBtn.addEventListener('click', function() {
         const dataStr = JSON.stringify(tasks, null, 2);
         const blob = new Blob([dataStr], { type: 'application/json' });
@@ -370,7 +318,8 @@ document.addEventListener('DOMContentLoaded', function() {
                 const importedTasks = JSON.parse(e.target.result);
                 tasks = importedTasks;
                 saveTasks();
-                updateTaskRelatedElements();
+                renderTasks();
+                updateStatistics();
             };
             reader.readAsText(file);
         }
@@ -380,304 +329,8 @@ document.addEventListener('DOMContentLoaded', function() {
         if (confirm('Are you sure you want to clear all tasks?')) {
             tasks = [];
             saveTasks();
-            updateTaskRelatedElements();
+            renderTasks();
+            updateStatistics();
         }
     });
-
-    // Pomodoro Timer
-    let timer;
-    let isTimerRunning = false;
-    let timerMode = 'pomodoro';
-    let secondsLeft = 25 * 60;
-    let totalSeconds = 25 * 60;
-    let completedPomodoros = 0;
-    let totalFocusMinutes = 0;
-    
-    // Load pomodoro settings from localStorage
-    const pomodoroSettings = JSON.parse(localStorage.getItem('pomodoro_settings')) || {
-        pomodoroDuration: 25,
-        shortBreakDuration: 5,
-        longBreakDuration: 15,
-        autoStartBreaks: false,
-        autoStartPomodoros: false,
-        dailyStats: {
-            date: new Date().toLocaleDateString(),
-            pomodoros: 0,
-            focusMinutes: 0
-        }
-    };
-    
-    // Apply saved pomodoro settings
-    pomodoroDuration.value = pomodoroSettings.pomodoroDuration;
-    shortBreakDuration.value = pomodoroSettings.shortBreakDuration;
-    longBreakDuration.value = pomodoroSettings.longBreakDuration;
-    autoStartBreaks.checked = pomodoroSettings.autoStartBreaks;
-    autoStartPomodoros.checked = pomodoroSettings.autoStartPomodoros;
-    
-    // Check if stats are from today, if not reset
-    if (pomodoroSettings.dailyStats.date !== new Date().toLocaleDateString()) {
-        pomodoroSettings.dailyStats = {
-            date: new Date().toLocaleDateString(),
-            pomodoros: 0,
-            focusMinutes: 0
-        };
-        localStorage.setItem('pomodoro_settings', JSON.stringify(pomodoroSettings));
-    }
-    
-    // Update stats display
-    pomodoroCount.textContent = pomodoroSettings.dailyStats.pomodoros;
-    focusMinutes.textContent = pomodoroSettings.dailyStats.focusMinutes;
-    
-    // Format time for display
-    function formatTime(seconds) {
-        const mins = Math.floor(seconds / 60);
-        const secs = seconds % 60;
-        return `${mins.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`;
-    }
-    
-    // Update timer display
-    function updateTimerDisplay() {
-        timerDisplay.textContent = formatTime(secondsLeft);
-        
-        // Update progress circle
-        const progressPercentage = (1 - (secondsLeft / totalSeconds)) * 100;
-        
-        if (timerMode === 'pomodoro') {
-            timerProgress.style.background = `conic-gradient(var(--pomodoro) ${progressPercentage}%, transparent ${progressPercentage}%)`;
-        } else if (timerMode === 'short-break') {
-            timerProgress.style.background = `conic-gradient(var(--short-break) ${progressPercentage}%, transparent ${progressPercentage}%)`;
-        } else {
-            timerProgress.style.background = `conic-gradient(var(--long-break) ${progressPercentage}%, transparent ${progressPercentage}%)`;
-        }
-    }
-    
-    // Start timer
-    function startTimer() {
-        if (isTimerRunning) return;
-        
-        isTimerRunning = true;
-        startBtn.disabled = true;
-        pauseBtn.disabled = false;
-        
-        timer = setInterval(() => {
-            secondsLeft--;
-            updateTimerDisplay();
-            
-            if (secondsLeft <= 0) {
-                clearInterval(timer);
-                isTimerRunning = false;
-                
-                // Play notification sound
-                const audio = new Audio('https://assets.coderrocketfuel.com/pomodoro-notification.mp3');
-                audio.play();
-                
-                // Notify user
-                if (Notification.permission === 'granted') {
-                    const notificationTitle = timerMode === 'pomodoro' 
-                        ? 'Break Time!' 
-                        : 'Pomodoro Time!';
-                    const notificationBody = timerMode === 'pomodoro' 
-                        ? 'Well done! Take a break.' 
-                        : 'Break is over. Back to work!';
-                        
-                    new Notification(notificationTitle, {
-                        body: notificationBody,
-                        icon: 'https://via.placeholder.com/48'
-                    });
-                }
-                
-                // Update stats if a pomodoro was completed
-                if (timerMode === 'pomodoro') {
-                    completedPomodoros++;
-                    pomodoroSettings.dailyStats.pomodoros++;
-                    pomodoroSettings.dailyStats.focusMinutes += Math.round(pomodoroSettings.pomodoroDuration);
-                    localStorage.setItem('pomodoro_settings', JSON.stringify(pomodoroSettings));
-                    
-                    // Update stats display
-                    pomodoroCount.textContent = pomodoroSettings.dailyStats.pomodoros;
-                    focusMinutes.textContent = pomodoroSettings.dailyStats.focusMinutes;
-                }
-                
-                // Auto-start next timer
-                startBtn.disabled = false;
-                pauseBtn.disabled = true;
-                
-                if (timerMode === 'pomodoro' && pomodoroSettings.autoStartBreaks) {
-                    // After every 4 pomodoros, take a long break
-                    if (completedPomodoros % 4 === 0) {
-                        switchMode('long-break');
-                    } else {
-                        switchMode('short-break');
-                    }
-                    startTimer();
-                } else if ((timerMode === 'short-break' || timerMode === 'long-break') && pomodoroSettings.autoStartPomodoros) {
-                    switchMode('pomodoro');
-                    startTimer();
-                }
-            }
-        }, 1000);
-    }
-    
-    // Pause timer
-    function pauseTimer() {
-        if (!isTimerRunning) return;
-        
-        clearInterval(timer);
-        isTimerRunning = false;
-        startBtn.disabled = false;
-        pauseBtn.disabled = true;
-    }
-    
-    // Reset timer
-    function resetTimer() {
-        clearInterval(timer);
-        isTimerRunning = false;
-        
-        // Reset based on current mode
-        if (timerMode === 'pomodoro') {
-            secondsLeft = parseInt(pomodoroDuration.value) * 60;
-        } else if (timerMode === 'short-break') {
-            secondsLeft = parseInt(shortBreakDuration.value) * 60;
-        } else {
-            secondsLeft = parseInt(longBreakDuration.value) * 60;
-        }
-        
-        totalSeconds = secondsLeft;
-        updateTimerDisplay();
-        startBtn.disabled = false;
-        pauseBtn.disabled = true;
-    }
-    
-    // Switch timer mode
-    function switchMode(mode) {
-        timerMode = mode;
-        
-        // Update active button
-        modeButtons.forEach(btn => {
-            if (btn.dataset.mode === mode) {
-                btn.classList.add('active');
-            } else {
-                btn.classList.remove('active');
-            }
-        });
-        
-        // Reset timer for the new mode
-        if (mode === 'pomodoro') {
-            secondsLeft = parseInt(pomodoroDuration.value) * 60;
-            document.documentElement.style.setProperty('--pomodoro', '#f87070');
-        } else if (mode === 'short-break') {
-            secondsLeft = parseInt(shortBreakDuration.value) * 60;
-            document.documentElement.style.setProperty('--pomodoro', '#4cc2c2');
-        } else {
-            secondsLeft = parseInt(longBreakDuration.value) * 60;
-            document.documentElement.style.setProperty('--pomodoro', '#d881f8');
-        }
-        
-        totalSeconds = secondsLeft;
-        updateTimerDisplay();
-        
-        // Clear any existing timer
-        if (isTimerRunning) {
-            clearInterval(timer);
-            isTimerRunning = false;
-        }
-        
-        startBtn.disabled = false;
-        pauseBtn.disabled = true;
-    }
-    
-    // Save timer settings
-    function saveSettings() {
-        pomodoroSettings.pomodoroDuration = parseInt(pomodoroDuration.value);
-        pomodoroSettings.shortBreakDuration = parseInt(shortBreakDuration.value);
-        pomodoroSettings.longBreakDuration = parseInt(longBreakDuration.value);
-        pomodoroSettings.autoStartBreaks = autoStartBreaks.checked;
-        pomodoroSettings.autoStartPomodoros = autoStartPomodoros.checked;
-        
-        localStorage.setItem('pomodoro_settings', JSON.stringify(pomodoroSettings));
-        
-        // Reset the current timer
-        resetTimer();
-        
-        // Show success message
-        alert('Settings saved successfully!');
-    }
-    
-    // Set initial timer display
-    updateTimerDisplay();
-    
-    // Event listeners for timer controls
-    startBtn.addEventListener('click', startTimer);
-    pauseBtn.addEventListener('click', pauseTimer);
-    resetBtn.addEventListener('click', resetTimer);
-    
-    // Event listeners for mode buttons
-    modeButtons.forEach(btn => {
-        btn.addEventListener('click', function() {
-            const mode = this.dataset.mode;
-            switchMode(mode);
-        });
-    });
-    
-    // Event listener for settings
-    saveSettingsBtn.addEventListener('click', saveSettings);
-
-    // Toggle settings visibility
-    settingsToggle.addEventListener('click', function() {
-        this.classList.toggle('active');
-        settingsContent.classList.toggle('active');
-    });
-
-    // Update task select options whenever tasks are updated
-    function updateTaskSelectOptions() {
-        // Clear existing options (except the first one)
-        while (taskSelect.options.length > 1) {
-            taskSelect.remove(1);
-        }
-        
-        // Add options for non-completed tasks
-        const activeTasks = tasks.filter(task => !task.completed);
-        
-        if (activeTasks.length === 0) {
-            const option = document.createElement('option');
-            option.text = "No active tasks available";
-            option.disabled = true;
-            taskSelect.add(option);
-        } else {
-            activeTasks.forEach(task => {
-                const option = document.createElement('option');
-                option.value = task.id;
-                option.text = task.text;
-                taskSelect.add(option);
-            });
-        }
-    }
-
-    // Handle task selection for focus
-    taskSelect.addEventListener('change', function() {
-        const selectedTaskId = parseInt(this.value);
-        const selectedTask = tasks.find(task => task.id === selectedTaskId);
-        
-        if (selectedTask) {
-            currentTask.innerHTML = `
-                <i class="fas fa-tasks current-task-icon"></i>
-                <span>${selectedTask.text}</span>
-            `;
-        } else {
-            currentTask.innerHTML = `
-                <i class="fas fa-tasks current-task-icon"></i>
-                <span>No task selected</span>
-            `;
-        }
-    });
-
-    // Call this when tasks are updated
-    function updateTaskRelatedElements() {
-        renderTasks();
-        updateStatistics();
-        updateTaskSelectOptions();
-    }
-
-    // Initialize task select options
-    updateTaskSelectOptions();
 });
