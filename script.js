@@ -333,4 +333,219 @@ document.addEventListener('DOMContentLoaded', function() {
             updateStatistics();
         }
     });
+    
+    // Pomodoro Timer Functionality
+    // Timer variables
+    let timer;
+    let minutes = 25;
+    let seconds = 0;
+    let isRunning = false;
+    let currentMode = 'pomodoro';
+    let originalMinutes = 25;
+    
+    // DOM elements
+    const timerDisplay = document.getElementById('timer-time');
+    const timerProgress = document.getElementById('timer-progress');
+    const startBtn = document.getElementById('timer-start');
+    const pauseBtn = document.getElementById('timer-pause');
+    const resetBtn = document.getElementById('timer-reset');
+    const modeButtons = document.querySelectorAll('.timer-mode-btn');
+    const settingsToggle = document.querySelector('.settings-toggle');
+    const settingsContent = document.querySelector('.settings-content');
+    const saveSettingsBtn = document.getElementById('save-pomodoro-settings');
+    const pomodoroCount = document.getElementById('pomodoro-count');
+    const focusMinutes = document.getElementById('focus-minutes');
+    
+    // Settings inputs
+    const pomodoroDuration = document.getElementById('pomodoro-duration');
+    const shortBreakDuration = document.getElementById('short-break-duration');
+    const longBreakDuration = document.getElementById('long-break-duration');
+    const autoStartBreaks = document.getElementById('auto-start-breaks');
+    const autoStartPomodoros = document.getElementById('auto-start-pomodoros');
+    
+    // Stats
+    let completedPomodoros = 0;
+    let totalFocusMinutes = 0;
+    
+    // Initialize timer display
+    updateTimerDisplay();
+    
+    // Event listeners
+    startBtn.addEventListener('click', startTimer);
+    pauseBtn.addEventListener('click', pauseTimer);
+    resetBtn.addEventListener('click', resetTimer);
+    
+    // Mode buttons
+    modeButtons.forEach(button => {
+        button.addEventListener('click', () => {
+            // Remove active class from all buttons
+            modeButtons.forEach(btn => btn.classList.remove('active'));
+            
+            // Add active class to clicked button
+            button.classList.add('active');
+            
+            // Set new mode and time
+            currentMode = button.dataset.mode;
+            minutes = parseInt(button.dataset.minutes);
+            originalMinutes = minutes;
+            seconds = 0;
+            
+            // Update display and reset timer
+            resetTimer();
+        });
+    });
+    
+    // Settings toggle
+    settingsToggle.addEventListener('click', () => {
+        settingsContent.classList.toggle('show');
+        const icon = settingsToggle.querySelector('.settings-toggle-icon');
+        if (settingsContent.classList.contains('show')) {
+            icon.classList.replace('fa-chevron-down', 'fa-chevron-up');
+        } else {
+            icon.classList.replace('fa-chevron-up', 'fa-chevron-down');
+        }
+    });
+    
+    // Save settings
+    saveSettingsBtn.addEventListener('click', () => {
+        // Update timer duration settings
+        const pDuration = parseInt(pomodoroDuration.value);
+        const sBDuration = parseInt(shortBreakDuration.value);
+        const lBDuration = parseInt(longBreakDuration.value);
+        
+        // Update mode buttons with new durations
+        document.querySelector('[data-mode="pomodoro"]').dataset.minutes = pDuration;
+        document.querySelector('[data-mode="short-break"]').dataset.minutes = sBDuration;
+        document.querySelector('[data-mode="long-break"]').dataset.minutes = lBDuration;
+        
+        // If the current mode matches the one being updated, update the timer
+        if (currentMode === 'pomodoro') {
+            minutes = pDuration;
+            originalMinutes = pDuration;
+        } else if (currentMode === 'short-break') {
+            minutes = sBDuration;
+            originalMinutes = sBDuration;
+        } else if (currentMode === 'long-break') {
+            minutes = lBDuration;
+            originalMinutes = lBDuration;
+        }
+        
+        // Reset the timer with new settings
+        resetTimer();
+        
+        // Hide settings panel
+        settingsContent.classList.remove('show');
+        settingsToggle.querySelector('.settings-toggle-icon').classList.replace('fa-chevron-up', 'fa-chevron-down');
+        
+        // Show confirmation message
+        alert('Settings saved successfully!');
+    });
+    
+    // Timer functions
+    function startTimer() {
+        if (!isRunning) {
+            isRunning = true;
+            startBtn.disabled = true;
+            pauseBtn.disabled = false;
+            
+            timer = setInterval(() => {
+                if (seconds === 0) {
+                    if (minutes === 0) {
+                        // Timer completed
+                        clearInterval(timer);
+                        isRunning = false;
+                        
+                        // Update stats if it was a pomodoro
+                        if (currentMode === 'pomodoro') {
+                            completedPomodoros++;
+                            totalFocusMinutes += originalMinutes;
+                            
+                            // Update stats display
+                            pomodoroCount.textContent = completedPomodoros;
+                            focusMinutes.textContent = totalFocusMinutes;
+                        }
+                        
+                        // Play notification sound
+                        const audio = new Audio('https://soundbible.com/mp3/Electronic_Chime-KevanGC-495939803.mp3');
+                        audio.play();
+                        
+                        // Show browser notification
+                        if (Notification.permission === 'granted') {
+                            new Notification(`${currentMode.charAt(0).toUpperCase() + currentMode.slice(1)} completed!`, {
+                                body: currentMode === 'pomodoro' ? 'Time for a break!' : 'Ready to focus again?',
+                                icon: './logo.png'
+                            });
+                        }
+                        
+                        // Auto-start next timer if enabled
+                        if ((currentMode === 'pomodoro' && autoStartBreaks.checked) || 
+                            (currentMode !== 'pomodoro' && autoStartPomodoros.checked)) {
+                            // Switch to the next appropriate mode
+                            const nextMode = currentMode === 'pomodoro' ? 
+                                'short-break' : 'pomodoro';
+                            
+                            // Click the corresponding mode button
+                            document.querySelector(`[data-mode="${nextMode}"]`).click();
+                            
+                            // Start the timer after a short delay
+                            setTimeout(startTimer, 1000);
+                        }
+                        
+                        startBtn.disabled = false;
+                        pauseBtn.disabled = true;
+                        return;
+                    }
+                    minutes--;
+                    seconds = 59;
+                } else {
+                    seconds--;
+                }
+                
+                updateTimerDisplay();
+            }, 1000);
+        }
+    }
+    
+    function pauseTimer() {
+        if (isRunning) {
+            clearInterval(timer);
+            isRunning = false;
+            startBtn.disabled = false;
+            pauseBtn.disabled = true;
+        }
+    }
+    
+    function resetTimer() {
+        clearInterval(timer);
+        isRunning = false;
+        seconds = 0;
+        minutes = originalMinutes;
+        startBtn.disabled = false;
+        pauseBtn.disabled = true;
+        updateTimerDisplay();
+    }
+    
+    function updateTimerDisplay() {
+        // Format time as MM:SS
+        const displayMinutes = minutes.toString().padStart(2, '0');
+        const displaySeconds = seconds.toString().padStart(2, '0');
+        timerDisplay.textContent = `${displayMinutes}:${displaySeconds}`;
+        
+        // Update progress circle
+        const totalSeconds = originalMinutes * 60;
+        const remainingSeconds = minutes * 60 + seconds;
+        const progressPercent = 100 - (remainingSeconds / totalSeconds * 100);
+        
+        timerProgress.style.background = `conic-gradient(
+            var(--accent) ${progressPercent}%,
+            transparent ${progressPercent}%
+        )`;
+    }
+    
+    // Request notification permission
+    if (Notification.permission !== 'granted' && Notification.permission !== 'denied') {
+        document.getElementById('request-notification-permission')?.addEventListener('click', () => {
+            Notification.requestPermission();
+        });
+    }
 });
