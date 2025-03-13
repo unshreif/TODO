@@ -118,6 +118,7 @@ document.addEventListener('DOMContentLoaded', function() {
         renderTasks();
     });
 
+    // Modified toggleTaskStatus function to handle focus task
     function toggleTaskStatus(id) {
         tasks = tasks.map(task => {
             if (task.id === id) {
@@ -125,13 +126,33 @@ document.addEventListener('DOMContentLoaded', function() {
             }
             return task;
         });
+        
+        // Reset focus task if it's completed
+        if (currentFocusTaskId === id) {
+            const task = tasks.find(task => task.id === id);
+            if (task && task.completed) {
+                currentFocusTaskId = null;
+                updateCurrentTaskDisplay();
+                updateTaskSelect();
+            }
+        }
+        
         saveTasks();
         renderTasks();
         updateStatistics();
     }
 
+    // Modified deleteTask function to handle focus task
     function deleteTask(id) {
         tasks = tasks.filter(task => task.id !== id);
+        
+        // Reset focus task if it's deleted
+        if (currentFocusTaskId === id) {
+            currentFocusTaskId = null;
+            updateCurrentTaskDisplay();
+            updateTaskSelect();
+        }
+        
         saveTasks();
         renderTasks();
         updateStatistics();
@@ -396,18 +417,125 @@ document.addEventListener('DOMContentLoaded', function() {
     });
     
     // Settings toggle
-    settingsToggle.addEventListener('click', () => {
+    settingsToggle.addEventListener('click', function(e) {
+        e.preventDefault(); // Prevent default behavior
+        
+        // First clear both possible active classes
         settingsContent.classList.toggle('show');
+        settingsContent.classList.toggle('active');
+        
+        // Toggle the icon
         const icon = settingsToggle.querySelector('.settings-toggle-icon');
         if (settingsContent.classList.contains('show')) {
-            icon.classList.replace('fa-chevron-down', 'fa-chevron-up');
+            icon.classList.remove('fa-chevron-down');
+            icon.classList.add('fa-chevron-up');
+            
+            // Initialize settings with current values
+            pomodoroDuration.value = document.querySelector('[data-mode="pomodoro"]').dataset.minutes;
+            shortBreakDuration.value = document.querySelector('[data-mode="short-break"]').dataset.minutes;
+            longBreakDuration.value = document.querySelector('[data-mode="long-break"]').dataset.minutes;
+            
+            // Create info content after delay to ensure DOM is ready
+            setTimeout(createSettingsInfoContent, 100);
         } else {
-            icon.classList.replace('fa-chevron-up', 'fa-chevron-down');
+            icon.classList.remove('fa-chevron-up');
+            icon.classList.add('fa-chevron-down');
+        }
+        
+        // Close dropdown when clicking outside
+        function closeDropdown(event) {
+            if (!settingsContent.contains(event.target) && !settingsToggle.contains(event.target)) {
+                settingsContent.classList.remove('show');
+                if (icon.classList.contains('fa-chevron-up')) {
+                    icon.classList.remove('fa-chevron-up');
+                    icon.classList.add('fa-chevron-down');
+                }
+                document.removeEventListener('click', closeDropdown);
+            }
+        }
+        
+        if (settingsContent.classList.contains('show')) {
+            // Add small delay to prevent immediate closing
+            setTimeout(() => {
+                document.addEventListener('click', closeDropdown);
+            }, 100);
+        }
+    });
+    
+    // Add info tooltips to settings
+    const settingsInfoElements = document.querySelectorAll('.setting-info-icon');
+    settingsInfoElements.forEach(icon => {
+        icon.addEventListener('mouseenter', function() {
+            const tooltip = this.nextElementSibling;
+            tooltip.style.display = 'block';
+        });
+        
+        icon.addEventListener('mouseleave', function() {
+            const tooltip = this.nextElementSibling;
+            tooltip.style.display = 'none';
+        });
+    });
+    
+    // Create and inject settings info content if it doesn't exist
+    function createSettingsInfoContent() {
+        const infoContainer = document.querySelector('.settings-info');
+        if (!infoContainer) {
+           
+            
+            settingsContent.insertAdjacentHTML('afterbegin', infoHTML);
+            
+            // Add info icons to each setting
+            const settingsGroups = document.querySelectorAll('.settings-group');
+            settingsGroups.forEach(group => {
+                const label = group.querySelector('label');
+                if (label) {
+                    const settingName = label.textContent.trim();
+                    let infoText = '';
+                    
+                    switch(settingName.toLowerCase()) {
+                        case 'pomodoro duration (minutes)':
+                            infoText = 'The length of each focused work interval';
+                            break;
+                        case 'short break duration (minutes)':
+                            infoText = 'A brief break between pomodoros';
+                            break;
+                        case 'long break duration (minutes)':
+                            infoText = 'A longer break after completing a set of pomodoros';
+                            break;
+                        case 'auto start breaks':
+                            infoText = 'Automatically start breaks when a pomodoro ends';
+                            break;
+                        case 'auto start pomodoros':
+                            infoText = 'Automatically start the next pomodoro when a break ends';
+                            break;
+                    }
+                    
+                    if (infoText) {
+                        const infoIcon = document.createElement('span');
+                        infoIcon.className = 'setting-info-icon';
+                        infoIcon.innerHTML = '<i class="fas fa-info-circle"></i>';
+                        
+                        const tooltip = document.createElement('span');
+                        tooltip.className = 'setting-tooltip';
+                        tooltip.textContent = infoText;
+                        
+                        label.appendChild(infoIcon);
+                        label.appendChild(tooltip);
+                    }
+                }
+            });
+        }
+    }
+    
+    // Call this function when the settings are shown
+    settingsToggle.addEventListener('click', function() {
+        if (settingsContent.classList.contains('show')) {
+            setTimeout(createSettingsInfoContent, 100);
         }
     });
     
     // Save settings
-    saveSettingsBtn.addEventListener('click', () => {
+    saveSettingsBtn.addEventListener('click', function() {
         // Update timer duration settings
         const pDuration = parseInt(pomodoroDuration.value);
         const sBDuration = parseInt(shortBreakDuration.value);
@@ -433,9 +561,9 @@ document.addEventListener('DOMContentLoaded', function() {
         // Reset the timer with new settings
         resetTimer();
         
-        // Hide settings panel
+        // Hide settings panel - ensure both classes are removed
         settingsContent.classList.remove('show');
-        settingsToggle.querySelector('.settings-toggle-icon').classList.replace('fa-chevron-up', 'fa-chevron-down');
+        settingsContent.classList.remove('active');
         
         // Show confirmation message
         alert('Settings saved successfully!');
@@ -463,6 +591,12 @@ document.addEventListener('DOMContentLoaded', function() {
                             // Update stats display
                             pomodoroCount.textContent = completedPomodoros;
                             focusMinutes.textContent = totalFocusMinutes;
+                            
+                            // Check if we need to complete the focus task
+                            const timerCompleteCheckbox = document.getElementById('auto-complete-tasks');
+                            if (currentFocusTaskId && timerCompleteCheckbox && timerCompleteCheckbox.checked) {
+                                toggleTaskStatus(currentFocusTaskId);
+                            }
                         }
                         
                         // Play notification sound
@@ -548,4 +682,144 @@ document.addEventListener('DOMContentLoaded', function() {
             Notification.requestPermission();
         });
     }
+    
+    // Add CSS for tooltips if not already in stylesheet
+    const styleElement = document.createElement('style');
+    styleElement.textContent = `
+        .settings-info {
+            background-color: rgba(76, 201, 240, 0.1);
+            border-radius: 8px;
+            padding: 12px;
+            margin-bottom: 15px;
+        }
+        
+        .settings-info h4 {
+            margin-top: 0;
+            color: var(--primary);
+        }
+        
+        .settings-info-list {
+            margin: 10px 0 0;
+            padding-left: 20px;
+        }
+        
+        .setting-info-icon {
+            display: inline-block;
+            margin-left: 8px;
+            color: var(--accent);
+            cursor: help;
+        }
+        
+        .setting-tooltip {
+            display: none;
+            position: absolute;
+            background: var(--bg-card);
+            border: 1px solid var(--border-color);
+            padding: 8px 12px;
+            border-radius: 6px;
+            font-size: 0.85rem;
+            width: 200px;
+            z-index: 100;
+            box-shadow: 0 3px 10px rgba(0,0,0,0.1);
+            left: calc(100% - 220px);
+            margin-top: 5px;
+        }
+    `;
+    document.head.appendChild(styleElement);
+    
+    // Add current focus task tracking
+    let currentFocusTaskId = null;
+    const taskFocusSelect = document.getElementById('task-focus-select');
+    const currentTaskDisplay = document.getElementById('current-focus-task');
+    
+    // Function to update task select dropdown
+    function updateTaskSelect() {
+        if (!taskFocusSelect) return;
+        
+        // Only show incomplete tasks
+        const incompleteTasks = tasks.filter(task => !task.completed);
+        
+        // Clear existing options
+        taskFocusSelect.innerHTML = '<option value="">-- Select a task to focus on --</option>';
+        
+        // Add tasks as options
+        incompleteTasks.forEach(task => {
+            const option = document.createElement('option');
+            option.value = task.id;
+            option.textContent = task.text;
+            if (currentFocusTaskId && parseInt(currentFocusTaskId) === task.id) {
+                option.selected = true;
+            }
+            taskFocusSelect.appendChild(option);
+        });
+    }
+    
+    // Update task select when tasks change
+    const originalRenderTasks = renderTasks;
+    renderTasks = function() {
+        originalRenderTasks();
+        updateTaskSelect();
+    };
+    
+    // Initialize task select
+    updateTaskSelect();
+    
+    // Handle task selection for focus
+    if (taskFocusSelect) {
+        taskFocusSelect.addEventListener('change', function() {
+            currentFocusTaskId = this.value ? parseInt(this.value) : null;
+            updateCurrentTaskDisplay();
+        });
+    }
+    
+    // Update the display that shows the current task
+    function updateCurrentTaskDisplay() {
+        if (!currentTaskDisplay) return;
+        
+        if (currentFocusTaskId) {
+            const focusTask = tasks.find(task => task.id === parseInt(currentFocusTaskId));
+            
+            if (focusTask && !focusTask.completed) {
+                currentTaskDisplay.innerHTML = `
+                    <div class="current-task">
+                        <i class="fas fa-crosshairs current-task-icon"></i>
+                        <div>
+                            <div class="current-task-text">${focusTask.text}</div>
+                            <div class="current-task-details">
+                                <span class="priority ${focusTask.priority}">${focusTask.priority}</span>
+                                ${focusTask.category ? `<span class="category category-${focusTask.category}">${focusTask.category}</span>` : ''}
+                            </div>
+                        </div>
+                        <button id="task-complete-btn" class="task-action-btn" title="Mark as completed">
+                            <i class="fas fa-check"></i>
+                        </button>
+                    </div>
+                `;
+                
+                // Add event listener to the complete button
+                const completeBtn = document.getElementById('task-complete-btn');
+                if (completeBtn) {
+                    completeBtn.addEventListener('click', function() {
+                        toggleTaskStatus(parseInt(currentFocusTaskId));
+                    });
+                }
+                
+                return;
+            }
+        }
+        
+        // If no task is selected or found
+        currentTaskDisplay.innerHTML = `
+            <div class="no-focus-task">
+                <i class="fas fa-tasks"></i>
+                <p>No task selected for this focus session</p>
+            </div>
+        `;
+    }
+    
+    // Initialize current task display
+    updateCurrentTaskDisplay();
+    
+    
+    
 });
