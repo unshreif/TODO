@@ -28,6 +28,13 @@ document.addEventListener('DOMContentLoaded', function() {
     const importFileInput = document.getElementById('import-file');
     const clearDataBtn = document.getElementById('clear-data');
 
+    // Interface customization elements
+    const colorThemeSelect = document.getElementById('color-theme');
+    const fontSizeSelect = document.getElementById('font-size');
+    const layoutDensitySelect = document.getElementById('layout-density');
+    const accentColorInput = document.getElementById('accent-color');
+    const saveInterfaceSettingsBtn = document.getElementById('save-interface-settings');
+
     const today = new Date();
     const formattedDate = today.toISOString().split('T')[0];
     taskDate.value = formattedDate;
@@ -36,17 +43,84 @@ document.addEventListener('DOMContentLoaded', function() {
     
     const settings = JSON.parse(localStorage.getItem('taskflow_settings')) || {
         theme: 'light',
-        notifications: false
+        notifications: false,
+        fontSize: 'medium',
+        layout: 'comfortable',
+        accentColor: '#4cc9f0'
     };
     
-    document.documentElement.setAttribute('data-theme', settings.theme);
-    updateThemeToggleIcon();
+    // Apply saved settings on load
+    applySettings();
     
     enableNotifications.checked = settings.notifications;
 
     renderTasks();
     updateStatistics();
 
+    // Apply interface settings function
+    function applySettings() {
+        // Apply theme
+        document.documentElement.setAttribute('data-theme', settings.theme);
+        updateThemeToggleIcon();
+        
+        // Apply font size
+        document.documentElement.setAttribute('data-font-size', settings.fontSize);
+        
+        // Apply layout density
+        document.documentElement.setAttribute('data-layout', settings.layout);
+        
+        // Apply accent color
+        document.documentElement.style.setProperty('--accent', settings.accentColor);
+        
+        // Update settings form values
+        if (colorThemeSelect) colorThemeSelect.value = settings.theme;
+        if (fontSizeSelect) fontSizeSelect.value = settings.fontSize;
+        if (layoutDensitySelect) layoutDensitySelect.value = settings.layout;
+        if (accentColorInput) accentColorInput.value = settings.accentColor;
+    }
+
+    // Save interface settings
+    if (saveInterfaceSettingsBtn) {
+        saveInterfaceSettingsBtn.addEventListener('click', function() {
+            settings.theme = colorThemeSelect.value;
+            settings.fontSize = fontSizeSelect.value;
+            settings.layout = layoutDensitySelect.value;
+            settings.accentColor = accentColorInput.value;
+            
+            localStorage.setItem('taskflow_settings', JSON.stringify(settings));
+            applySettings();
+            
+            // Show confirmation message
+            alert('Interface settings saved successfully!');
+        });
+    }
+
+    // Apply settings immediately when changed (optional real-time preview)
+    if (colorThemeSelect) {
+        colorThemeSelect.addEventListener('change', function() {
+            document.documentElement.setAttribute('data-theme', this.value);
+            updateThemeToggleIcon();
+        });
+    }
+    
+    if (fontSizeSelect) {
+        fontSizeSelect.addEventListener('change', function() {
+            document.documentElement.setAttribute('data-font-size', this.value);
+        });
+    }
+    
+    if (layoutDensitySelect) {
+        layoutDensitySelect.addEventListener('change', function() {
+            document.documentElement.setAttribute('data-layout', this.value);
+        });
+    }
+    
+    if (accentColorInput) {
+        accentColorInput.addEventListener('input', function() {
+            document.documentElement.style.setProperty('--accent', this.value);
+        });
+    }
+    
     taskForm.addEventListener('submit', function(e) {
         e.preventDefault();
         

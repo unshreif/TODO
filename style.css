@@ -32,6 +32,65 @@
     --gray: #9ca3af;
 }
 
+[data-theme="blue"] {
+    --primary: #0077b6;
+    --secondary: #0096c7;
+    --accent: #00b4d8;
+    --bg-main: #f0f8ff;
+    --bg-card: white;
+    --text-main: #1e3a8a;
+    --border-color: #caf0f8;
+    --gray: #90e0ef;
+}
+
+[data-theme="purple"] {
+    --primary: #7209b7;
+    --secondary: #560bad;
+    --accent: #b5179e;
+    --bg-main: #f8f0fc;
+    --bg-card: white;
+    --text-main: #3c096c;
+    --border-color: #e0c3fc;
+    --gray: #d0b0ff;
+}
+
+[data-theme="green"] {
+    --primary: #2d6a4f;
+    --secondary: #40916c;
+    --accent: #52b788;
+    --bg-main: #f0fff4;
+    --bg-card: white;
+    --text-main: #1b4332;
+    --border-color: #d8f3dc;
+    --gray: #95d5b2;
+}
+
+[data-font-size="small"] {
+    font-size: 0.9rem;
+}
+
+[data-font-size="medium"] {
+    font-size: 1rem;
+}
+
+[data-font-size="large"] {
+    font-size: 1.1rem;
+}
+
+[data-layout="compact"] .task-item,
+[data-layout="compact"] .settings-group,
+[data-layout="compact"] .stat-card {
+    padding: 0.8rem;
+    margin-bottom: 0.8rem;
+}
+
+[data-layout="spacious"] .task-item,
+[data-layout="spacious"] .settings-group,
+[data-layout="spacious"] .stat-card {
+    padding: 1.5rem;
+    margin-bottom: 1.5rem;
+}
+
 * {
     margin: 0;
     padding: 0;
@@ -844,12 +903,21 @@ footer {
     font-size: 1rem;
     background-color: var(--bg-main);
     color: var(--text-main);
+    transition: all 0.3s ease;
+}
+
+.settings-group input[type="number"]:focus {
+    border-color: var(--accent);
+    box-shadow: 0 0 0 3px rgba(76, 201, 240, 0.2);
+    outline: none;
 }
 
 .settings-group input[type="checkbox"] {
     margin-right: 10px;
     width: 18px;
     height: 18px;
+    cursor: pointer;
+    accent-color: var(--primary);
 }
 
 .pomodoro-stats {
@@ -1034,6 +1102,113 @@ footer {
     background-color: var(--recurring);
     color: white;
     border-color: var(--recurring);
+}
+
+/* Settings Tab Styling */
+#settings-tab h2 {
+    margin-bottom: 1.5rem;
+    color: var(--primary);
+    font-weight: 600;
+    position: relative;
+    padding-bottom: 0.5rem;
+}
+
+#settings-tab h2::after {
+    content: '';
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    width: 50px;
+    height: 3px;
+    background-color: var(--accent);
+    border-radius: 3px;
+}
+
+.settings-section {
+    background-color: var(--bg-card);
+    border-radius: 12px;
+    padding: 1.5rem;
+    margin-bottom: 2rem;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+    transition: all 0.3s ease;
+}
+
+.settings-section:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 6px 16px rgba(0, 0, 0, 0.08);
+}
+
+.settings-section h3 {
+    margin-bottom: 1.2rem;
+    font-size: 1.2rem;
+    color: var(--text-main);
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.settings-section h3::before {
+    content: '';
+    display: inline-block;
+    width: 4px;
+    height: 18px;
+    background-color: var(--accent);
+    border-radius: 2px;
+}
+
+.settings-input {
+    width: 100%;
+    padding: 10px 15px;
+    border: 2px solid var(--border-color);
+    border-radius: 8px;
+    font-size: 1rem;
+    background-color: var(--bg-main);
+    color: var(--text-main);
+    transition: all 0.3s ease;
+    margin-top: 5px;
+}
+
+.settings-input:focus {
+    border-color: var(--accent);
+    box-shadow: 0 0 0 3px rgba(76, 201, 240, 0.2);
+    outline: none;
+}
+
+.color-picker {
+    height: 40px;
+    padding: 5px;
+    cursor: pointer;
+}
+
+.settings-btn {
+    background-color: var(--primary);
+    color: white;
+    border: none;
+    border-radius: 8px;
+    padding: 12px 20px;
+    font-size: 1rem;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    font-weight: 600;
+    margin-top: 1rem;
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.settings-btn:hover {
+    background-color: var(--secondary);
+    transform: translateY(-2px);
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+}
+
+.settings-btn.danger {
+    background-color: var(--danger);
+    margin-top: 1.5rem;
+}
+
+.settings-btn.danger:hover {
+    background-color: #d63c5e;
 }
 
 /* Offline indicator */
@@ -1281,5 +1456,27 @@ footer {
         width: 100%;
         margin: 5px 0;
         min-height: 80px;
+    }
+    
+    .settings-section {
+        padding: 1rem;
+    }
+    
+    .settings-group {
+        flex-direction: column;
+        align-items: flex-start;
+    }
+    
+    .settings-group label {
+        margin-bottom: 8px;
+    }
+    
+    .settings-input {
+        width: 100%;
+    }
+    
+    .settings-btn {
+        width: 100%;
+        justify-content: center;
     }
 }

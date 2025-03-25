@@ -24,6 +24,7 @@
             <div class="tab" data-tab="pomodoro">Pomodoro</div>
             <div class="tab" data-tab="statistics">Statistics</div>
             <div class="tab" data-tab="settings">Settings</div>
+            
         </div>
 
         <div id="tasks-tab" class="tab-content active">
@@ -192,22 +193,56 @@
 
         <div id="settings-tab" class="tab-content">
             <h2>Settings</h2>
-            <div style="margin: 20px 0;">
+            <div class="settings-section">
+                <h3>Interface Customization</h3>
+                <div class="settings-group">
+                    <label for="color-theme">Color Theme</label>
+                    <select id="color-theme" class="settings-input">
+                        <option value="light">Light</option>
+                        <option value="dark">Dark</option>
+                        <option value="blue">Blue</option>
+                        <option value="purple">Purple</option>
+                        <option value="green">Green</option>
+                    </select>
+                </div>
+                <div class="settings-group">
+                    <label for="font-size">Font Size</label>
+                    <select id="font-size" class="settings-input">
+                        <option value="small">Small</option>
+                        <option value="medium">Medium</option>
+                        <option value="large">Large</option>
+                    </select>
+                </div>
+                <div class="settings-group">
+                    <label for="layout-density">Layout Density</label>
+                    <select id="layout-density" class="settings-input">
+                        <option value="compact">Compact</option>
+                        <option value="comfortable">Comfortable</option>
+                        <option value="spacious">Spacious</option>
+                    </select>
+                </div>
+                <div class="settings-group">
+                    <label for="accent-color">Accent Color</label>
+                    <input type="color" id="accent-color" class="settings-input color-picker" value="#4cc9f0">
+                </div>
+                <button id="save-interface-settings" class="settings-btn">Save Interface Settings</button>
+            </div>
+            <div class="settings-section">
                 <h3>Notifications</h3>
-                <div style="margin: 10px 0; display: flex; align-items: center;">
+                <div class="settings-group">
                     <input type="checkbox" id="enable-notifications" style="margin-right: 10px;">
                     <label for="enable-notifications">Enable due date notifications</label>
                 </div>
-                <button id="request-notification-permission" style="margin-top: 10px;">
+                <button id="request-notification-permission" class="settings-btn">
                     Request Notification Permission
                 </button>
             </div>
-            <div style="margin: 20px 0;">
+            <div class="settings-section">
                 <h3>Data Management</h3>
-                <button id="export-data" style="margin-right: 10px;">Export Tasks</button>
-                <button id="import-data">Import Tasks</button>
+                <button id="export-data" class="settings-btn" style="margin-right: 10px;">Export Tasks</button>
+                <button id="import-data" class="settings-btn">Import Tasks</button>
                 <input type="file" id="import-file" accept=".json" style="display: none;">
-                <button id="clear-data" style="margin-left: 10px; background-color: var(--danger);">Clear All Tasks</button>
+                <button id="clear-data" class="settings-btn danger">Clear All Tasks</button>
             </div>
         </div>
     </main>
