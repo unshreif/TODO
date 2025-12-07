@@ -7,17 +7,17 @@ document.addEventListener('DOMContentLoaded', () => {
     const emptyState = document.getElementById('empty-state');
     const themeToggle = document.getElementById('theme-toggle');
 
-
+    // Stats Elements
     const totalTasksEl = document.getElementById('total-tasks');
     const completedTasksEl = document.getElementById('completed-tasks');
     const completionRateEl = document.getElementById('completion-rate');
 
-
+    // State
     let tasks = JSON.parse(localStorage.getItem('tasks')) || [];
     let currentFilter = 'all';
     let currentCategory = 'all';
 
-
+    // Theme Handling
     const savedTheme = localStorage.getItem('theme') || 'light';
     document.documentElement.setAttribute('data-theme', savedTheme);
     updateThemeIcon(savedTheme);
@@ -35,7 +35,7 @@ document.addEventListener('DOMContentLoaded', () => {
         icon.className = theme === 'light' ? 'fas fa-moon' : 'fas fa-sun';
     }
 
-
+    // Tab Handling
     const tabBtns = document.querySelectorAll('.tab-btn');
     const tabContents = document.querySelectorAll('.tab-content');
 
@@ -49,7 +49,7 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     });
 
-
+    // Task Management
     taskForm.addEventListener('submit', (e) => {
         e.preventDefault();
         const text = taskInput.value.trim();
@@ -111,7 +111,7 @@ document.addEventListener('DOMContentLoaded', () => {
                     </div>
                 `;
 
-
+                // Event Listeners
                 const checkbox = li.querySelector('.custom-checkbox');
                 checkbox.addEventListener('change', () => toggleTask(task.id));
 
@@ -148,7 +148,7 @@ document.addEventListener('DOMContentLoaded', () => {
         completionRateEl.textContent = `${rate}%`;
     }
 
-
+    // Filters
     document.querySelectorAll('.chip[data-filter]').forEach(chip => {
         chip.addEventListener('click', () => {
             document.querySelectorAll('.chip[data-filter]').forEach(c => c.classList.remove('active'));
@@ -167,7 +167,7 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     });
 
-
+    // Pomodoro Timer
     let timerInterval;
     let timeLeft = 25 * 60;
     let isRunning = false;
@@ -182,7 +182,7 @@ document.addEventListener('DOMContentLoaded', () => {
         const s = (timeLeft % 60).toString().padStart(2, '0');
         timerDisplay.textContent = `${m}:${s}`;
 
-
+        // Update document title
         document.title = `${m}:${s} - TaskFlow`;
     }
 
@@ -219,7 +219,7 @@ document.addEventListener('DOMContentLoaded', () => {
         startBtn.disabled = false;
         pauseBtn.disabled = true;
 
-
+        // Reset to current mode time
         const activeMode = document.querySelector('.chip[data-mode].active').dataset.mode;
         setTimerMode(activeMode);
     });
@@ -255,7 +255,7 @@ document.addEventListener('DOMContentLoaded', () => {
         updateTimerDisplay();
     }
 
-
+    // Clear Data
     document.getElementById('clear-data').addEventListener('click', () => {
         if (confirm('Are you sure you want to clear all data? This cannot be undone.')) {
             tasks = [];
@@ -264,6 +264,6 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     });
 
-
+    // Initial Render
     renderTasks();
 });

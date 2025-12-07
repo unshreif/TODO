@@ -33,28 +33,148 @@
                 </button>
                 <button class="tab-btn" data-tab="statistics">
                     <i class="fas fa-chart-pie"></i> Stats
-                    <h4>Notifications</h4>
-                    <p style="color: var(--text-muted); font-size: 0.9rem;">Get notified when tasks are due
-                    </p>
+                </button>
+                <button class="tab-btn" data-tab="settings">
+                    <i class="fas fa-cog"></i> Settings
+                </button>
             </div>
-            <label class="checkbox-wrapper">
-                <input type="checkbox" id="enable-notifications" class="custom-checkbox">
-            </label>
-    </div>
-    <div class="setting-item">
-        <div>
-            <h4>Clear Data</h4>
-            <p style="color: var(--text-muted); font-size: 0.9rem;">Remove all tasks and reset stats
-            </p>
-        </div>
-        <button id="clear-data" class="action-btn" style="color: var(--danger);">
-            <i class="fas fa-trash"></i> Clear All
-        </button>
-    </div>
-    </div>
-    </div>
-    </div>
-    </main>
+
+            <!-- Tasks View -->
+            <div id="tasks-tab" class="tab-content active">
+                <form id="task-form" class="task-input-group">
+                    <div class="input-wrapper">
+                        <input type="text" id="task-input" class="form-input" placeholder="What needs to be done?"
+                            required>
+                    </div>
+                    <div class="input-wrapper" style="flex: 0 0 150px;">
+                        <select id="task-category" class="form-select">
+                            <option value="personal">Personal</option>
+                            <option value="work">Work</option>
+                            <option value="shopping">Shopping</option>
+                            <option value="health">Health</option>
+                            <option value="education">Education</option>
+                        </select>
+                    </div>
+                    <div class="input-wrapper" style="flex: 0 0 140px;">
+                        <select id="task-priority" class="form-select">
+                            <option value="low">Low</option>
+                            <option value="medium" selected>Medium</option>
+                            <option value="high">High</option>
+                        </select>
+                    </div>
+                    <button type="submit" class="add-btn">
+                        <i class="fas fa-plus"></i> Add
+                    </button>
+                </form>
+
+                <div class="filters-bar">
+                    <div class="filter-chips">
+                        <span class="chip active" data-filter="all">All</span>
+                        <span class="chip" data-filter="active">Active</span>
+                        <span class="chip" data-filter="completed">Completed</span>
+                    </div>
+                    <div class="filter-chips">
+                        <span class="chip active" data-category="all">All Categories</span>
+                        <span class="chip" data-category="work">Work</span>
+                        <span class="chip" data-category="personal">Personal</span>
+                        <span class="chip" data-category="shopping">Shopping</span>
+                    </div>
+                </div>
+
+                <ul id="task-list" class="task-list">
+                    <!-- Tasks will be injected here -->
+                </ul>
+
+                <div id="empty-state" class="empty-state">
+                    <i class="fas fa-clipboard-check empty-icon"></i>
+                    <h3>All caught up!</h3>
+                    <p>You have no tasks on your list.</p>
+                </div>
+            </div>
+
+            <!-- Pomodoro View -->
+            <div id="pomodoro-tab" class="tab-content">
+                <div class="glass-card timer-container">
+                    <h2>Focus Timer</h2>
+                    <div class="timer-circle">
+                        <div class="timer-inner">
+                            <div id="timer-time" class="timer-time">25:00</div>
+                            <div id="timer-status" class="timer-status">Focus Time</div>
+                        </div>
+                    </div>
+
+                    <div class="timer-controls">
+                        <button id="timer-start" class="control-btn btn-primary">
+                            <i class="fas fa-play"></i> Start
+                        </button>
+                        <button id="timer-pause" class="control-btn btn-secondary" disabled>
+                            <i class="fas fa-pause"></i> Pause
+                        </button>
+                        <button id="timer-reset" class="control-btn btn-secondary">
+                            <i class="fas fa-redo"></i> Reset
+                        </button>
+                    </div>
+
+                    <div class="filter-chips" style="justify-content: center; margin-top: 2rem;">
+                        <span class="chip active" data-mode="pomodoro">Pomodoro</span>
+                        <span class="chip" data-mode="short-break">Short Break</span>
+                        <span class="chip" data-mode="long-break">Long Break</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Statistics View -->
+            <div id="statistics-tab" class="tab-content">
+                <div class="stats-grid">
+                    <div class="glass-card stat-card">
+                        <i class="fas fa-list-check stat-icon"></i>
+                        <div id="total-tasks" class="stat-value">0</div>
+                        <div class="stat-label">Total Tasks</div>
+                    </div>
+                    <div class="glass-card stat-card">
+                        <i class="fas fa-check-circle stat-icon"
+                            style="color: var(--success); background: rgba(16, 185, 129, 0.1);"></i>
+                        <div id="completed-tasks" class="stat-value">0</div>
+                        <div class="stat-label">Completed</div>
+                    </div>
+                    <div class="glass-card stat-card">
+                        <i class="fas fa-chart-line stat-icon"
+                            style="color: var(--accent); background: rgba(139, 92, 246, 0.1);"></i>
+                        <div id="completion-rate" class="stat-value">0%</div>
+                        <div class="stat-label">Completion Rate</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Settings View -->
+            <div id="settings-tab" class="tab-content">
+                <div class="glass-card" style="padding: 2rem;">
+                    <h2>Settings</h2>
+                    <div class="settings-list">
+                        <div class="setting-item">
+                            <div>
+                                <h4>Notifications</h4>
+                                <p style="color: var(--text-muted); font-size: 0.9rem;">Get notified when tasks are due
+                                </p>
+                            </div>
+                            <label class="checkbox-wrapper">
+                                <input type="checkbox" id="enable-notifications" class="custom-checkbox">
+                            </label>
+                        </div>
+                        <div class="setting-item">
+                            <div>
+                                <h4>Clear Data</h4>
+                                <p style="color: var(--text-muted); font-size: 0.9rem;">Remove all tasks and reset stats
+                                </p>
+                            </div>
+                            <button id="clear-data" class="action-btn" style="color: var(--danger);">
+                                <i class="fas fa-trash"></i> Clear All
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </main>
     </div>
 
     <script src="./script.js"></script>

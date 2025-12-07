@@ -87,7 +87,7 @@ body {
         radial-gradient(at 0% 100%, rgba(16, 185, 129, 0.1) 0px, transparent 50%);
 }
 
-
+/* Glassmorphism Utilities */
 .glass {
     background: var(--bg-glass);
     backdrop-filter: blur(12px);
@@ -105,14 +105,14 @@ body {
     border-radius: var(--radius-xl);
 }
 
-
+/* Layout */
 .container {
     max-width: 1200px;
     margin: 0 auto;
     padding: 2rem;
 }
 
-
+/* Header */
 header {
     display: flex;
     justify-content: space-between;
@@ -144,7 +144,7 @@ header {
     letter-spacing: -0.025em;
 }
 
-
+/* Theme Toggle */
 .theme-toggle-btn {
     background: transparent;
     border: none;
@@ -166,7 +166,7 @@ header {
     transform: rotate(15deg);
 }
 
-
+/* Tabs */
 .tabs-container {
     display: flex;
     justify-content: center;
@@ -236,7 +236,7 @@ header {
     }
 }
 
-
+/* Task Form */
 .task-input-group {
     display: flex;
     gap: 1rem;
@@ -298,7 +298,7 @@ header {
     transform: translateY(0);
 }
 
-
+/* Filters */
 .filters-bar {
     display: flex;
     justify-content: space-between;
@@ -339,7 +339,7 @@ header {
     border-color: var(--primary);
 }
 
-
+/* Task List */
 .task-list {
     list-style: none;
     display: flex;
@@ -482,7 +482,7 @@ header {
     color: var(--primary);
 }
 
-
+/* Empty State */
 .empty-state {
     text-align: center;
     padding: 4rem 2rem;
@@ -498,7 +498,7 @@ header {
     -webkit-text-fill-color: transparent;
 }
 
-
+/* Pomodoro */
 .timer-container {
     text-align: center;
     padding: 2rem;
@@ -584,7 +584,7 @@ header {
     background: var(--gray-300);
 }
 
-
+/* Stats */
 .stats-grid {
     display: grid;
     grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
@@ -620,7 +620,7 @@ header {
     border-radius: 50%;
 }
 
-
+/* Settings */
 .settings-list {
     display: flex;
     flex-direction: column;
@@ -641,7 +641,7 @@ header {
     background: var(--bg-hover);
 }
 
-
+/* Responsive */
 @media (max-width: 768px) {
     .container {
         padding: 1rem;
