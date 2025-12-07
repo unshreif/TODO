@@ -1,258 +1,63 @@
 <!DOCTYPE html>
 <html lang="en" data-theme="light">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title> TO-DO</title>
+    <title>TaskFlow </title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap"
+        rel="stylesheet">
     <link rel="stylesheet" href="./style.css">
 </head>
+
 <body>
-    <button id="theme-toggle" class="theme-toggle">
-        <i class="fas fa-moon"></i>
-    </button>
-
-    <header>
-        <div class="container">
-            <img src="./logo.png" width="100">
-        </div>
-    </header>
-
-    <main class="container">
-        <div class="tabs">
-            <div class="tab active" data-tab="tasks">Tasks</div>
-            <div class="tab" data-tab="pomodoro">Pomodoro</div>
-            <div class="tab" data-tab="statistics">Statistics</div>
-            <div class="tab" data-tab="settings">Settings</div>
-            
-        </div>
-
-        <div id="tasks-tab" class="tab-content active">
-            <form id="task-form" class="task-form">
-                <input type="text" id="task-input" class="task-input" placeholder="Add a new task..." required>
-                <select id="task-category" class="task-input">
-                    <option value="">No Category</option>
-                    <option value="work">Work</option>
-                    <option value="personal">Personal</option>
-                    <option value="shopping">Shopping</option>
-                    <option value="health">Health</option>
-                    <option value="education">Education</option>
-                </select>
-                <select id="task-priority" class="task-input">
-                    <option value="low">Low Priority</option>
-                    <option value="medium" selected>Medium Priority</option>
-                    <option value="high">High Priority</option>
-                </select>
-                <input type="date" id="task-date" class="task-input">
-        
-                <button type="submit">Add Task</button>
-            </form>
-
-            <div class="category-filters">
-                <div class="category-filter active" data-category="all">All Categories</div>
-                <div class="category-filter" data-category="work">Work</div>
-                <div class="category-filter" data-category="personal">Personal</div>
-                <div class="category-filter" data-category="shopping">Shopping</div>
-                <div class="category-filter" data-category="health">Health</div>
-                <div class="category-filter" data-category="education">Education</div>
+    <div class="container">
+        <header class="glass">
+            <div class="logo-container">
+                <img src="./logo.png" alt="TaskFlow Logo" class="logo-img">
+                <h1 class="app-title">TaskFlow</h1>
             </div>
+            <button id="theme-toggle" class="theme-toggle-btn" aria-label="Toggle Theme">
+                <i class="fas fa-moon"></i>
+            </button>
+        </header>
 
-            <div class="filters">
-                <div>
-                    <button class="filter-btn active" data-filter="all">All</button>
-                    <button class="filter-btn" data-filter="active">Active</button>
-                    <button class="filter-btn" data-filter="completed">Completed</button>
-                </div>
-
-                <div class="search-box">
-                    <input type="text" id="search-input" class="search-input" placeholder="Search tasks...">
-                    <button id="search-btn">Search</button>
-                </div>
-            </div>
-
-            <ul id="task-list" class="task-list">
-            </ul>
-
-            <div id="empty-state" class="empty-state">
-                <i class="fas fa-clipboard-list"></i>
-                <h3>No tasks yet</h3>
-                <p>Add a new task to get started</p>
-            </div>
-        </div>
-        
-        <div id="pomodoro-tab" class="tab-content">
-            <div class="pomodoro-container">
-                <div class="pomodoro-header">
-                    <h2>Pomodoro Timer</h2>
-                    <p class="pomodoro-description">Focus on your tasks with timed work sessions and breaks</p>
-                </div>
-                
-                <div class="timer-display">
-                    <div class="timer-circle">
-                        <div class="timer-time" id="timer-time">25:00</div>
-                        <div class="timer-progress" id="timer-progress"></div>
-                    </div>
-                </div>
-                
-                <div class="timer-controls">
-                    <button id="timer-start" class="timer-btn"><i class="fas fa-play"></i> Start</button>
-                    <button id="timer-pause" class="timer-btn" disabled><i class="fas fa-pause"></i> Pause</button>
-                    <button id="timer-reset" class="timer-btn"><i class="fas fa-redo"></i> Reset</button>
-                </div>
-                
-                <div class="timer-modes">
-                    <button class="timer-mode-btn active" data-mode="pomodoro" data-minutes="25">Pomodoro</button>
-                    <button class="timer-mode-btn" data-mode="short-break" data-minutes="5">Short Break</button>
-                    <button class="timer-mode-btn" data-mode="long-break" data-minutes="15">Long Break</button>
-                </div>
-                
-                <button class="settings-toggle">
-                    <span>Timer Settings</span>
-                    <i class="fas fa-chevron-down settings-toggle-icon"></i>
+        <main>
+            <div class="tabs-container">
+                <button class="tab-btn active" data-tab="tasks">
+                    <i class="fas fa-tasks"></i> Tasks
                 </button>
-                
-                <div class="settings-content">
-                    <div class="pomodoro-settings">
-                        <h3>Timer Settings</h3>
-                        <div class="settings-group">
-                            <label for="pomodoro-duration">Pomodoro Duration (minutes)</label>
-                            <input type="number" id="pomodoro-duration" min="1" max="60" value="25">
-                        </div>
-                        <div class="settings-group">
-                            <label for="short-break-duration">Short Break Duration (minutes)</label>
-                            <input type="number" id="short-break-duration" min="1" max="30" value="5">
-                        </div>
-                        <div class="settings-group">
-                            <label for="long-break-duration">Long Break Duration (minutes)</label>
-                            <input type="number" id="long-break-duration" min="1" max="60" value="15">
-                        </div>
-                        <div class="settings-group">
-                            <label for="auto-start-breaks">
-                                <input type="checkbox" id="auto-start-breaks">
-                                Auto-start breaks
-                            </label>
-                        </div>
-                        <div class="settings-group">
-                            <label for="auto-start-pomodoros">
-                                <input type="checkbox" id="auto-start-pomodoros">
-                                Auto-start pomodoros
-                            </label>
-                        </div>
-                        <button id="save-pomodoro-settings" class="timer-btn">Save Settings</button>
-                    </div>
-                </div>
-                
-                <div class="pomodoro-task-suggestion">
-                    <h3>Focus on Task</h3>
-                    <select id="task-select" class="task-select">
-                        <option value="">Select a task to focus on...</option>
-                    </select>
-                    <div id="current-task" class="current-task">
-                        <i class="fas fa-tasks current-task-icon"></i>
-                        <span>No task selected</span>
-                    </div>
-                </div>
-                
-                <div class="pomodoro-stats">
-                    <div class="pomodoro-stat">
-                        <div class="pomodoro-stat-value" id="pomodoro-count">0</div>
-                        <div class="pomodoro-stat-label">Pomodoros Today</div>
-                    </div>
-                    <div class="pomodoro-stat">
-                        <div class="pomodoro-stat-value" id="focus-minutes">0</div>
-                        <div class="pomodoro-stat-label">Minutes Focused</div>
-                    </div>
-                </div>
-            </div>
-        </div>
-
-        <div id="statistics-tab" class="tab-content">
-            <h2>Your Task Statistics</h2>
-            <div class="stats-container">
-                <div class="stat-card">
-                    <div id="total-tasks" class="stat-value">0</div>
-                    <div class="stat-label">Total Tasks</div>
-                </div>
-                <div class="stat-card">
-                    <div id="completed-tasks" class="stat-value">0</div>
-                    <div class="stat-label">Completed</div>
-                </div>
-                <div class="stat-card">
-                    <div id="completion-rate" class="stat-value">0%</div>
-                    <div class="stat-label">Completion Rate</div>
-                </div>
-                <div class="stat-card">
-                    <div id="due-soon" class="stat-value">0</div>
-                    <div class="stat-label">Due Soon</div>
-                </div>
-            </div>
-            <div id="category-stats">
-                <h3>Tasks by Category</h3>
-            </div>
-        </div>
-
-        <div id="settings-tab" class="tab-content">
-            <h2>Settings</h2>
-            <div class="settings-section">
-                <h3>Interface Customization</h3>
-                <div class="settings-group">
-                    <label for="color-theme">Color Theme</label>
-                    <select id="color-theme" class="settings-input">
-                        <option value="light">Light</option>
-                        <option value="dark">Dark</option>
-                        <option value="blue">Blue</option>
-                        <option value="purple">Purple</option>
-                        <option value="green">Green</option>
-                    </select>
-                </div>
-                <div class="settings-group">
-                    <label for="font-size">Font Size</label>
-                    <select id="font-size" class="settings-input">
-                        <option value="small">Small</option>
-                        <option value="medium">Medium</option>
-                        <option value="large">Large</option>
-                    </select>
-                </div>
-                <div class="settings-group">
-                    <label for="layout-density">Layout Density</label>
-                    <select id="layout-density" class="settings-input">
-                        <option value="compact">Compact</option>
-                        <option value="comfortable">Comfortable</option>
-                        <option value="spacious">Spacious</option>
-                    </select>
-                </div>
-                <div class="settings-group">
-                    <label for="accent-color">Accent Color</label>
-                    <input type="color" id="accent-color" class="settings-input color-picker" value="#4cc9f0">
-                </div>
-                <button id="save-interface-settings" class="settings-btn">Save Interface Settings</button>
-            </div>
-            <div class="settings-section">
-                <h3>Notifications</h3>
-                <div class="settings-group">
-                    <input type="checkbox" id="enable-notifications" style="margin-right: 10px;">
-                    <label for="enable-notifications">Enable due date notifications</label>
-                </div>
-                <button id="request-notification-permission" class="settings-btn">
-                    Request Notification Permission
+                <button class="tab-btn" data-tab="pomodoro">
+                    <i class="fas fa-clock"></i> Focus
                 </button>
+                <button class="tab-btn" data-tab="statistics">
+                    <i class="fas fa-chart-pie"></i> Stats
+                    <h4>Notifications</h4>
+                    <p style="color: var(--text-muted); font-size: 0.9rem;">Get notified when tasks are due
+                    </p>
             </div>
-            <div class="settings-section">
-                <h3>Data Management</h3>
-                <button id="export-data" class="settings-btn" style="margin-right: 10px;">Export Tasks</button>
-                <button id="import-data" class="settings-btn">Import Tasks</button>
-                <input type="file" id="import-file" accept=".json" style="display: none;">
-                <button id="clear-data" class="settings-btn danger">Clear All Tasks</button>
-            </div>
+            <label class="checkbox-wrapper">
+                <input type="checkbox" id="enable-notifications" class="custom-checkbox">
+            </label>
+    </div>
+    <div class="setting-item">
+        <div>
+            <h4>Clear Data</h4>
+            <p style="color: var(--text-muted); font-size: 0.9rem;">Remove all tasks and reset stats
+            </p>
         </div>
+        <button id="clear-data" class="action-btn" style="color: var(--danger);">
+            <i class="fas fa-trash"></i> Clear All
+        </button>
+    </div>
+    </div>
+    </div>
+    </div>
     </main>
-
-    <footer>
-        <div class="container">
-            <p>&copy; 2025 - Muhmd Samy</p>
-        </div>
-    </footer>
+    </div>
 
     <script src="./script.js"></script>
 </body>
+
 </html>
